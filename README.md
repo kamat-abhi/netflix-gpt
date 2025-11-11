@@ -24,39 +24,3 @@ In this model, Node.js is the full-stack backend handling the user and the logic
 | **Strengths** | Fast Async I/O (many users) | Best AI/ML Libraries |
 | **Your Skills** | `reactjs`, `nodejs`, `expressjs` | `ml` |
 | **Verdict** | **Use as your main backend** | **Use as a separate AI service** |
-
-
-2-server/
-├── src/
-│   ├── api/              (All route definitions live here)
-│   │   ├── index.js        (Combines all routes)
-│   │   ├── auth.routes.js
-│   │   ├── mylist.routes.js
-│   │   └── search.routes.js
-│   │
-│   ├── config/           (Configuration files)
-│   │   ├── db.js           (Database connection)
-│   │   └── index.js        (Loads .env variables)
-│   │
-│   ├── controllers/      (Handles logic from routes)
-│   │   ├── auth.controller.js
-│   │   ├── mylist.controller.js
-│   │   └── search.controller.js
-│   │
-│   ├── middleware/       (Functions that run before controllers)
-│   │   └── auth.middleware.js  (Verifies JWT token)
-│   │
-│   ├── models/           (Your database schemas)
-│   │   ├── User.model.js
-│   │   └── MyList.model.js
-│   │
-│   ├── services/         (For complex business logic)
-│   │   ├── tmdb.service.js   (Code to call the TMDB API)
-│   │   └── ml.service.js     (Code to call your Python ML service)
-│   │
-│   └── utils/            (Helpers like error handlers)
-│       └── errorHandler.js
-│
-├── .env                  (DB_STRING, JWT_SECRET, TMDB_KEY, ML_SERVICE_URL)
-├── server.js             (The main entry point: starts server)
-└── package.json
