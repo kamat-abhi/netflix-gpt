@@ -1,10 +1,34 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import checkValidateData from "../utils/validate";
 
 const Login = () => {
   const [isSignInForm, setIsSignInForm] = useState(true);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState(null);
+
+  useEffect(() => {
+    if (!email && !password) {
+      setErrorMessage(null);
+      return;
+    }
+    const message = checkValidateData(email, password);
+    setErrorMessage(message);
+  }, [email, password]);
+
+  const handleButtonClick = () => {
+    //Validate the form data
+    if (errorMessage) return;
+    console.log("✅ Form is valid!");
+    console.log("Email:", email);
+    console.log("Password:", password);
+  };
 
   const toggleSignInForm = () => {
     setIsSignInForm(!isSignInForm);
+    setEmail("");
+    setPassword("");
+    setErrorMessage(null);
   };
 
   return (
@@ -26,34 +50,51 @@ const Login = () => {
       </div>
 
       {/* Form container */}
-      <form className="relative z-10 w-[420px] bg-black/75 px-12 py-10 rounded text-white">
+      <form
+        onSubmit={(e) => e.preventDefault()}
+        className="relative z-10 w-[420px] bg-black/75 px-12 py-10 rounded text-white"
+      >
         <h1 className="text-3xl font-bold mb-6">
           {isSignInForm ? "SignIn" : "SignUp"}
         </h1>
 
-        {/* Email Input */}
         {!isSignInForm && (
           <input
             type="text"
+            name="Full Name"
             placeholder="Full Name"
             className="w-full p-3 mb-4 bg-neutral-800 rounded focus:outline-none focus:ring-1 focus:ring-white"
           />
         )}
+        {/* Email Input */}
         <input
           type="text"
+          name="email"
           placeholder="Email Address"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
           className="w-full p-3 mb-4 bg-neutral-800 rounded focus:outline-none focus:ring-2 focus:ring-white"
         />
 
         {/* Password Input */}
         <input
           type="password"
+          name="Password"
           placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
           className="w-full p-3 mb-4 bg-neutral-800 rounded focus:outline-none focus:ring-1 focus:ring-white"
         />
+        {/* Inline Error */}
+        {errorMessage && (
+          <p className="text-red-500 text-sm mb-3">{errorMessage}</p>
+        )}
 
         {/* Sign In Button */}
-        <button className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3 rounded mb-4 cursor-pointer">
+        <button
+          className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3 rounded mb-4 cursor-pointer"
+          onClick={handleButtonClick}
+        >
           {isSignInForm ? "Sign In" : "Sign Up"}
         </button>
 
@@ -80,22 +121,22 @@ const Login = () => {
           {isSignInForm ? (
             <p className="flex">
               New to Netflix?{" "}
-              <p
+              <span
                 className="text-white hover:underline cursor-pointer px-0.5 "
                 onClick={toggleSignInForm}
               >
                 SignUp now.
-              </p>
+              </span>
             </p>
           ) : (
             <p className="flex">
               Already registered?{" "}
-              <p
+              <span
                 className="text-white hover:underline cursor-pointer px-0.5 "
                 onClick={toggleSignInForm}
               >
                 SignIn now.
-              </p>
+              </span>
             </p>
           )}
         </div>
