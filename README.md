@@ -15,16 +15,6 @@ In this model, Node.js is the full-stack backend handling the user and the logic
 
 ---
 
-### Comparison Table: Backend vs. ML Service
-
-| Feature | JavaScript (Node.js) | Python (Flask/FastAPI) |
-| :--- | :--- | :--- |
-| **Primary Role** | **Main API Server** | **ML Microservice** |
-| **Main Tasks** | Auth, Database, Security, API Logic | AI/ML Predictions |
-| **Strengths** | Fast Async I/O (many users) | Best AI/ML Libraries |
-| **Your Skills** | `reactjs`, `nodejs`, `expressjs` | `ml` |
-| **Verdict** | **Use as your main backend** | **Use as a separate AI service** |
-
 ![SiignUp && Email verification detail](./assets/signUp.jpg)
 
 ![Login && forget password and Reset detail](./assets/login.jpg)
