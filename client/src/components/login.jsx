@@ -5,7 +5,11 @@ const Login = () => {
   const [isSignInForm, setIsSignInForm] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
+  const [otp, setOtp] = useState(""); // OTP state
   const [errorMessage, setErrorMessage] = useState(null);
+  const [otpSent, setOtpSent] = useState(false); // track if OTP was sent
+  const [successMessage, setSuccessMessage] = useState(null);
 
   useEffect(() => {
     if (!email && !password) {
@@ -16,19 +20,63 @@ const Login = () => {
     setErrorMessage(message);
   }, [email, password]);
 
-  const handleButtonClick = () => {
-    //Validate the form data
+  const handleButtonClick = async () => {
     if (errorMessage) return;
-    console.log("✅ Form is valid!");
-    console.log("Email:", email);
-    console.log("Password:", password);
+
+    try {
+      if (!isSignInForm && !otpSent) {
+        // SignUp request
+        const res = await fetch("http://localhost:4000/api/auth/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, email, password }),
+        });
+
+        const data = await res.json();
+        if (!res.ok) {
+          setErrorMessage(data.message);
+          return;
+        }
+
+        setOtpSent(true);
+        setSuccessMessage("✅ OTP sent to your email. Please verify.");
+      } else if (!isSignInForm && otpSent) {
+        // Verify Email request
+        const res = await fetch("http://localhost:4000/api/auth/verify-email", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, otp }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          setErrorMessage(data.message);
+          return;
+        }
+        setSuccessMessage("✅ Email verified! You can now login.");
+        setOtpSent(false);
+        setOtp("");
+        setIsSignInForm(true);
+      } else {
+        // SignIn
+        console.log("✅ Form is valid!");
+        console.log("Email:", email);
+        console.log("Password:", password);
+        // Call login API here...
+      }
+    } catch (err) {
+      setErrorMessage("Something went wrong. Try again.");
+    }
   };
 
   const toggleSignInForm = () => {
     setIsSignInForm(!isSignInForm);
     setEmail("");
     setPassword("");
+    setName("");
+    setOtp("");
     setErrorMessage(null);
+    setSuccessMessage(null);
+    setOtpSent(false);
   };
 
   return (
@@ -39,7 +87,6 @@ const Login = () => {
           "url('https://assets.nflxext.com/ffe/siteui/vlv3/a92a67ee-cd07-46a8-8354-c431a96a97b0/web/IN-en-20251103-TRIFECTA-perspective_8a65e995-9926-414c-83c5-f7cc9af10871_medium.jpg')",
       }}
     >
-      {/* Dark overlay */}
       <div className="absolute inset-0 bg-black/60"></div>
       <div className="absolute top-0 left-0 w-full px-8 py-4 bg-linear-to-b from-black">
         <img
@@ -49,7 +96,6 @@ const Login = () => {
         />
       </div>
 
-      {/* Form container */}
       <form
         onSubmit={(e) => e.preventDefault()}
         className="relative z-10 w-[420px] bg-black/75 px-12 py-10 rounded text-white"
@@ -58,15 +104,17 @@ const Login = () => {
           {isSignInForm ? "SignIn" : "SignUp"}
         </h1>
 
-        {!isSignInForm && (
+        {!isSignInForm && !otpSent && (
           <input
             type="text"
             name="Full Name"
             placeholder="Full Name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
             className="w-full p-3 mb-4 bg-neutral-800 rounded focus:outline-none focus:ring-1 focus:ring-white"
           />
         )}
-        {/* Email Input */}
+
         <input
           type="text"
           name="email"
@@ -76,43 +124,55 @@ const Login = () => {
           className="w-full p-3 mb-4 bg-neutral-800 rounded focus:outline-none focus:ring-2 focus:ring-white"
         />
 
-        {/* Password Input */}
-        <input
-          type="password"
-          name="Password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full p-3 mb-4 bg-neutral-800 rounded focus:outline-none focus:ring-1 focus:ring-white"
-        />
-        {/* Inline Error */}
+        {!otpSent && (
+          <input
+            type="password"
+            name="Password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full p-3 mb-4 bg-neutral-800 rounded focus:outline-none focus:ring-1 focus:ring-white"
+          />
+        )}
+
+        {/* OTP input after signup */}
+        {!isSignInForm && otpSent && (
+          <input
+            type="text"
+            name="otp"
+            placeholder="Enter OTP"
+            value={otp}
+            onChange={(e) => setOtp(e.target.value)}
+            className="w-full p-3 mb-4 bg-neutral-800 rounded focus:outline-none focus:ring-1 focus:ring-white"
+          />
+        )}
+
         {errorMessage && (
           <p className="text-red-500 text-sm mb-3">{errorMessage}</p>
         )}
+        {successMessage && (
+          <p className="text-green-500 text-sm mb-3">{successMessage}</p>
+        )}
 
-        {/* Sign In Button */}
         <button
           className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3 rounded mb-4 cursor-pointer"
           onClick={handleButtonClick}
         >
-          {isSignInForm ? "Sign In" : "Sign Up"}
+          {isSignInForm ? "Sign In" : otpSent ? "Verify OTP" : "Sign Up"}
         </button>
 
-        {/* Divider */}
         <div className="flex items-center my-3">
           <div className="grow h-px bg-gray-500"></div>
           <span className="mx-3 text-gray-400">OR</span>
           <div className="grow h-px bg-gray-500"></div>
         </div>
 
-        {/* Forgot password */}
         <div className="text-center mb-6">
           <a href="#" className="text-gray-400 hover:underline text-sm">
             Forgot password?
           </a>
         </div>
 
-        {/* Remember me + Signup */}
         <div className="flex items-center justify-between text-sm text-gray-400">
           <label className="flex items-center space-x-2">
             <input type="checkbox" className="accent-gray-400 cursor-pointer" />
@@ -122,7 +182,7 @@ const Login = () => {
             <p className="flex">
               New to Netflix?{" "}
               <span
-                className="text-white hover:underline cursor-pointer px-0.5 "
+                className="text-white hover:underline cursor-pointer px-0.5"
                 onClick={toggleSignInForm}
               >
                 SignUp now.
@@ -132,7 +192,7 @@ const Login = () => {
             <p className="flex">
               Already registered?{" "}
               <span
-                className="text-white hover:underline cursor-pointer px-0.5 "
+                className="text-white hover:underline cursor-pointer px-0.5"
                 onClick={toggleSignInForm}
               >
                 SignIn now.

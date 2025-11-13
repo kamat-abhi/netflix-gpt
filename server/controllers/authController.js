@@ -55,8 +55,6 @@ export const verifyEmail = async (req, res) => {
 };
 
 //Login
-import User from "../models/User.js";
-import jwt from "jsonwebtoken";
 
 export const login = async (req, res) => {
   const { email, password } = req.body;
